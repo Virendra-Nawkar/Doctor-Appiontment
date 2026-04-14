@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+
+  mongodb:
+    image: mongo:6
+    container_name: doctor-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - doctor-network
+
+  backend:
+    image: virendranawkar/doctor-backend:latest
+    container_name: doctor-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO=mongodb://mongodb:27017/doctorDB
+      - JWT=mysupersecretjwtkey123456789
+    depends_on:
+      - mongodb
+    networks:
+      - doctor-network
+
+  frontend:
+    image: virendranawkar/doctor-frontend:latest
+    container_name: doctor-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - doctor-network
+
+volumes:
+  mongo-data:
+
+networks:
+  doctor-network:
+    driver: bridge
